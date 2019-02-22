@@ -78,6 +78,21 @@ void loop() {
     digitalWrite(ledVermelho,estVermelho);
     digitalWrite(ledAzul,estAzul);
     noTone(5);
+    Serial.println("Tempo para resposta esgotado!!");
+
+    int a = digitalRead(incrementAzul);
+    int v = digitalRead(incrementVermelho);
+    Serial.println("Esperando pelo botão que diz qual equipe pontuou!");
+    while(!a && !v){
+      a = digitalRead(incrementAzul);
+      v = digitalRead(incrementVermelho);
+    }
+
+    if(a){
+      Serial.println("Equipe azul pontuou!");
+    }else{
+      Serial.println("Equipe Vermelha pontuou!");
+    }
     interrupts();
   }
   
