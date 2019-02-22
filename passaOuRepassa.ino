@@ -2,7 +2,7 @@
   * Código para Passa ou Repassa com arduino
   * 
   * Autores:
-  * Denilson Gomes Vaz da Silva     <denilsongomes@alu.ufc.br>
+  * Denilson Gomes Vaz da Silva   <denilsongomes@alu.ufc.br>
   * Graduando em Engenharia da Computação - UFC
   * Cassio Viera Simplicio
   * Graduando em Mecatrônica - IFCE
@@ -93,6 +93,7 @@ void loop() {
       display.showNumberDecEx(i); //Exibe o tempo
       delay(1000);
     }
+    
     estVermelho = 0;
     estAzul = 0;
     som = 0;
