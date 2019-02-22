@@ -21,4 +21,4 @@
 3.Funcionamento
 ==========
 
-<p>Este sistema deve esperar que algum participante aperte o botão, para então acionar o sinal sonoro e o sinal visual da equipe que pressionou o botão. Então esperar o tempo que o participante tem para responder a pergunta e esperar ser apertado um botão para incrementar a pontuação de uma das equipes. O display deve ser utilizado para exibir a pontuação e/ou o tempo.<p/>
+<p>Este sistema deve esperar que algum participante aperte o botão, para então acionar o sinal sonoro e o sinal visual da equipe que pressionou o botão. Foi utilizado um led de cada cor para representar as duas equipes. Então deve esperar o tempo que o participante tem para responder a pergunta e esperar ser apertado um botão para incrementar a pontuação de uma das equipes. O display deve ser utilizado para exibir a pontuação e/ou o tempo.<p/>
