@@ -1,27 +1,33 @@
  /*
- * Autores:
- * Denilson Gomes Vaz da Silva
- * Graduando em Engenharia da Computação - UFC
- * Cassio Viera Simplicio
- * Graduando em Mecatrônica - IFCE
+  * Código para Passa ou Repassa com arduino
+  * 
+  * Autores:
+  * Denilson Gomes Vaz da Silva     <denilsongomes@alu.ufc.br>
+  * Graduando em Engenharia da Computação - UFC
+  * Cassio Viera Simplicio
+  * Graduando em Mecatrônica - IFCE
  */
 
 // -- Bibliotecas --
 #include <TM1637Display.h> // Inclui a biblioteca do Display
 
 // -- Variaveis e Constantes --
-int botAzul = 2; //Botao Azul
-int botVermelho = 3; //Botao Vermelho
-int ledAzul = 4; //Variavel para azul
-int buzzer = 5; //Variavel para som
+int botAzul = 2; //Botao da equipe Azul
+int botVermelho = 3; //Botao da equipe Vermelho
+int ledAzul = 4; //Variavel para led azul
+int buzzer = 5; //Variavel para sinal sonoro
 int ledVermelho = 6; //Variavel para led vermelho
 int incrementAzul = 7; //Botao para incrementar pontuação dos azuis
 int reseta = 8; //Botao para resetar a pontuação
 int incrementVermelho = 9; //Botao para incrementar pontuação dos vermelhos
 
-volatile int som;
-volatile int estVermelho;
-volatile int estAzul;
+int pontosAzul = 0; //Variavel para pontuação da equipe Azul
+int pontosVermelho = 0; //Variavel para pontuação da equipe Vermelha
+int tempo = 5000; //Tempo que o participante tem para responder a pergunta após apertar o botão
+
+volatile int som; //Variavel para controlar o sinal sonoro
+volatile int estVermelho; //Variavel para controlar o sinal visual da equipe Vermelha
+volatile int estAzul; //Variavel para controlar o sinal visual da equipe Azul
 
 const int DIO = 10; //Define o pino 8 para o sinal digital
 const int CLK = 11; //Define o pino 9 para o clock
@@ -50,28 +56,43 @@ void setup() {
 }
 
 void vermelho() {
+  noInterrupts(); //Desativa as interrupções
   estVermelho = 1;
   som = 1;
-  noInterrupts(); //Desativa as interrupções
 }
 
 void azul() {
+  noInterrupts(); //Desativa as interrupções
   estAzul = 1;
   som = 1;
-  noInterrupts(); //Desativa as interrupções
 }
 
 void loop() {
   uint8_t segto = 0x80; // Atribui os dois pontos a variavel
-  display.showNumberDecEx(1001); //Exibe o tempo com os dois pontos
+  display.showNumberDecEx(pontosAzul*100 + pontosVermelho); //Exibe a pontuação
 
   if(som){ //Caso algum participante aperte o botão
-    
-    Serial.println("Alarme ativado");
+    Serial.println("Alarme ativado"); //Aciona o sinal sonoro
+
+    if(estAzul && estVermelho){ //Pro caso de as duas interrupções executarem
+      int num = random(0,100);
+      if(num%2==0){
+        estVermelho = 0;
+        Serial.println("Led Azul será aceso");
+      }else{
+        estAzul = 0;
+        Serial.println("Led Vermelho será aceso");
+      }
+    }
     digitalWrite(ledVermelho,estVermelho);
     digitalWrite(ledAzul,estAzul);
     tone(5,166);
-    delay(5000);
+//  delay(tempo);
+
+    for (int i=tempo/1000;i>=0;i--){
+      display.showNumberDecEx(i); //Exibe o tempo
+      delay(1000);
+    }
     estVermelho = 0;
     estAzul = 0;
     som = 0;
@@ -90,8 +111,10 @@ void loop() {
 
     if(a){
       Serial.println("Equipe azul pontuou!");
+      pontosAzul++;
     }else{
       Serial.println("Equipe Vermelha pontuou!");
+      pontosVermelho++;
     }
     interrupts();
   }
