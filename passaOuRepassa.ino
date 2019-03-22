@@ -69,7 +69,7 @@ void azul() {
 
 void loop() {
   uint8_t segto = 0x80; // Atribui os dois pontos a variavel
-  display.showNumberDecEx(pontosAzul*100 + pontosVermelho); //Exibe a pontuação
+  display.showNumberDecEx(pontosAzul*1000 + pontosVermelho); //Exibe a pontuação
 
   if(som){ //Caso algum participante aperte o botão
     Serial.println("Alarme ativado"); //Aciona o sinal sonoro
