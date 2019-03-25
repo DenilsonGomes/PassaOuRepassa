@@ -15,7 +15,7 @@
 int botAzul = 2; //Botao da equipe Azul
 int botVermelho = 3; //Botao da equipe Vermelho
 int ledAzul = 4; //Variavel para led azul
-int incrementAzul = 5; //Variavel para led azul
+int incrementAzul = 5; //Variavel para incrementar pontuação azul
 int buzzer = 6; //Variavel para sinal sonoro
 
 const int DIO = 7; //Define o pino 8 para o sinal digital
@@ -37,21 +37,30 @@ TM1637Display display(CLK, DIO);  //Inicializa objeto displays com CLK e DIO
 
 void setup() {
 
-  Serial.begin(9600);
-  
+  Serial.begin(9600); //Habilita comunicação Serial
   display.setBrightness(0x0a);  //Determina o brilho dos leds do minino (0x00) ate o maximo (0xff)
-  pinMode(ledAzul, OUTPUT);
-  pinMode(buzzer, OUTPUT);
-  pinMode(ledVermelho, OUTPUT);
-  pinMode(incrementAzul, INPUT);
-  pinMode(incrementVermelho, INPUT);
+
+  //Saídas
+  pinMode(ledAzul, OUTPUT); //Led azul como saida
+  pinMode(buzzer, OUTPUT); //Buzzer como saida
+  pinMode(ledVermelho, OUTPUT); //Led vermalho como saida
+
+  //Entradas
+  pinMode(incrementAzul, INPUT_PULLUP); //Botão incrementa pontos azul como entrada
+  pinMode(incrementVermelho, INPUT_PULLUP); //Botão incrementa pontos vermelho como entrada
+  pinMode(botAzul, INPUT_PULLUP); //Botão azul como entrada
+  pinMode(botVermelho, INPUT_PULLUP); //Botão vermelho como entrada
   
   // Sintaxe das interrupções:
   // attachInterrupt(numero_interrupt,funcao_a_executar,modo);
   // Modos LOW,CHANGE,RISING,FALLING
   
-  attachInterrupt(0, azul, RISING);
-  attachInterrupt(1, vermelho, RISING);
+  attachInterrupt(0, azul, FALLING); //Interupção quando botão azul é presionado
+  attachInterrupt(1, vermelho, FALLING); //Interupção quando botão vermelho é presionado
+
+  estVermelho=0;
+  estAzul=0;
+  som =0;
 }
 
 void vermelho() {
@@ -71,9 +80,9 @@ void loop() {
   display.showNumberDecEx(pontosAzul*1000 + pontosVermelho); //Exibe a pontuação
  
   if(som){ //Caso algum participante aperte o botão
-//    noInterrupts(); //Desativa as interrupções
-    Serial.println("Alarme ativado"); //Aciona o sinal sonoro
+    Serial.println("Alarme ativado"); //Exibe mensagem na serial
 
+    //Garantir que apenas uma equipe terá o direito de resposta
     if(estAzul && estVermelho){ //Pro caso de as duas interrupções executarem
       int num = random(0,100);
       if(num%2==0){
@@ -84,42 +93,49 @@ void loop() {
         Serial.println("Led Vermelho será aceso");
       }
     }
+
+    //Acende o led da equipe que vai responder e ativa o som
     digitalWrite(ledVermelho,estVermelho);
     digitalWrite(ledAzul,estAzul);
     tone(buzzer,166);
 
+    //Espera o tempo de resposta   
     for (int i=tempo/1000;i>=0;i--){
       display.showNumberDecEx(i); //Exibe o tempo
       delay(1000);
     }
-    
+
+    //Para o sinal sonoro
     noTone(buzzer);
     Serial.println("Tempo para resposta esgotado!!");
 
-    int a = digitalRead(incrementAzul);
-    int v = digitalRead(incrementVermelho);
+    //Pontuação
+    int a = !digitalRead(incrementAzul); //ler botão incrementAzul
+    int v = !digitalRead(incrementVermelho); //ler botão incrementVermelho
+    
     Serial.println("Esperando pelo botão que diz qual equipe pontuou!");
     
-    while(!a && !v){
-      a = digitalRead(incrementAzul);
-      v = digitalRead(incrementVermelho);
+    while(!a && !v){ //Enquanto nenhum dos botoes de incrementar pontução for apertado
+      a = !digitalRead(incrementAzul); //ler botão incrementAzul
+      v = !digitalRead(incrementVermelho); //ler botão incrementVermelho
     }
-
-    if(a){
+    //Aqui algun dos botoes foi apertado
+    if(a){ //Caso foi o botao azul
       Serial.println("Equipe azul pontuou!");
-      pontosAzul++;
-    }else{
+      pontosAzul++; //incrementa pontuação azul
+    }else{ //Caso foi o botao vermelho
       Serial.println("Equipe Vermelha pontuou!");
-      pontosVermelho++;
+      pontosVermelho++; //incrementa pontuação vermelha
     }
 
+    //reseta estado das saidas para nova pergunta
     estVermelho = 0;
     estAzul = 0;
     som = 0;
     digitalWrite(ledVermelho,estVermelho);
     digitalWrite(ledAzul,estAzul);
     
-    interrupts();
+    interrupts(); //Torna a esperar por interrupções
   }
   
 }
