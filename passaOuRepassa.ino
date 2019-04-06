@@ -8,43 +8,64 @@
   * Graduando em Mecatrônica - IFCE
  */
 
-// -- Bibliotecas --
-#include <TM1637Display.h> // Inclui a biblioteca do Display
+#include <TimerOne.h>
 
 // -- Variaveis e Constantes --
 int botAzul = 2; //Botao da equipe Azul
 int botVermelho = 3; //Botao da equipe Vermelho
-int ledAzul = 4; //Variavel para led azul
-int incrementAzul = 5; //Variavel para incrementar pontuação azul
-int buzzer = 6; //Variavel para sinal sonoro
+int ledAzul = A0; //Variavel para led azul
+int incrementAzul = A1; //Variavel para incrementar pontuação azul
+int buzzer = A2; //Variavel para sinal sonoro
 
-const int DIO = 7; //Define o pino 8 para o sinal digital
-const int CLK = 8; //Define o pino 9 para o clock
+int incrementVermelho = A4; //Botao para incrementar pontuação dos vermelhos
+int ledVermelho = A3; //Variavel para led vermelho
 
-int incrementVermelho = 9; //Botao para incrementar pontuação dos vermelhos
-int ledVermelho = 10; //Variavel para led vermelho
-
-int pontosAzul = 0; //Variavel para pontuação da equipe Azul
-int pontosVermelho = 0; //Variavel para pontuação da equipe Vermelha
+volatile byte pontosAzul = 0; //Variavel para pontuação da equipe Azul
+volatile byte pontosVermelho = 0; //Variavel para pontuação da equipe Vermelha
 int tempo = 5000; //Tempo que o participante tem para responder a pergunta após apertar o botão
 
 volatile int som; //Variavel para controlar o sinal sonoro
 volatile int estVermelho; //Variavel para controlar o sinal visual da equipe Vermelha
 volatile int estAzul; //Variavel para controlar o sinal visual da equipe Azul
 
-// -- Instancia de objetos --
-TM1637Display display(CLK, DIO);  //Inicializa objeto displays com CLK e DIO
+int displayAzul = 5; //Variavel para ativar display Azul
+int displayVermelho = 13; //Variavel para ativar display Vermelho
+
+byte seven_seg_digits[10][7] = {
+ //Para leds acionando em HIGH (Display catodo Comum)
+ { 1,1,1,1,1,1,0 },  //DIGITO 0 
+ { 0,1,1,0,0,0,0 },  //DIGITO 1
+ { 1,1,0,1,1,0,1 },  //DIGITO 2
+ { 1,1,1,1,0,0,1 },  //DIGITO 3
+ { 0,1,1,0,0,1,1 },  //DIGITO 4
+ { 1,0,1,1,0,1,1 },  //DIGITO 5
+ { 1,0,1,1,1,1,1 },  //DIGITO 6
+ { 1,1,1,0,0,0,0 },  //DIGITO 7
+ { 1,1,1,1,1,1,1 },  //DIGITO 8
+ { 1,1,1,0,0,1,1 },  //DIGITO 9
+};
 
 void setup() {
 
   Serial.begin(9600); //Habilita comunicação Serial
-  display.setBrightness(0x0a);  //Determina o brilho dos leds do minino (0x00) ate o maximo (0xff)
-
+  
   //Saídas
   pinMode(ledAzul, OUTPUT); //Led azul como saida
   pinMode(buzzer, OUTPUT); //Buzzer como saida
   pinMode(ledVermelho, OUTPUT); //Led vermalho como saida
-
+  pinMode(displayAzul, OUTPUT); //Sinal para ativar displayAzul
+  pinMode(displayVermelho, OUTPUT); //Sinal para ativar displayVermelho
+  
+  
+  //Seguimentos dos Displays
+  pinMode(12, OUTPUT); //PINO 2 -> SEGMENTO A  
+  pinMode(11, OUTPUT); //PINO 3 -> SEGMENTO B
+  pinMode(10, OUTPUT); //PINO 4 -> SEGMENTO C
+  pinMode(9, OUTPUT); //PINO 5 -> SEGMENTO D
+  pinMode(8, OUTPUT); //PINO 6 -> SEGMENTO E
+  pinMode(7, OUTPUT); //PINO 7 -> SEGMENTO F
+  pinMode(6, OUTPUT); //PINO 8 -> SEGMENTO G
+  
   //Entradas
   pinMode(incrementAzul, INPUT_PULLUP); //Botão incrementa pontos azul como entrada
   pinMode(incrementVermelho, INPUT_PULLUP); //Botão incrementa pontos vermelho como entrada
@@ -57,7 +78,10 @@ void setup() {
   
   attachInterrupt(0, azul, FALLING); //Interupção quando botão azul é presionado
   attachInterrupt(1, vermelho, FALLING); //Interupção quando botão vermelho é presionado
-
+  
+  Timer1.initialize(30000); // Inicializa o Timer1 e configura para um período de 10 milisegundos
+  Timer1.attachInterrupt(callback); // Chama callback() a cada interrupção do Timer1
+  
   estVermelho=0;
   estAzul=0;
   som =0;
@@ -75,10 +99,30 @@ void azul() {
   som = 1;
 }
 
+void callback()
+{
+  digitalWrite(displayAzul, !digitalRead(displayAzul));
+  digitalWrite(displayVermelho, !digitalRead(displayVermelho));            
+  if(digitalRead(displayAzul)){
+    ligaSegmentosDisplay(pontosAzul);
+  }else{
+    ligaSegmentosDisplay(pontosVermelho);
+  }
+}
+
+void ligaSegmentosDisplay(byte digit){ //FUNÇÃO QUE ACIONA O DISPLAY
+  byte pino = 2;
+
+  for (byte contadorSegmentos = 0; contadorSegmentos < 7; ++contadorSegmentos){ //PARA "contadorSegmentos"
+    //IGUAL A 0, ENQUANTO "contadorSegmentos" MENOR QUE 7, INCREMENTA "contadorSegmentos"
+    digitalWrite(pino, seven_seg_digits[digit][contadorSegmentos]); //PERCORRE O ARRAY E LIGA OS
+    //SEGMENTOS CORRESPONDENTES AO DIGITO
+    ++pino; //INCREMENTA "pino"
+  }
+}
+
 void loop() {
-  uint8_t segto = 0x80; // Atribui os dois pontos a variavel
-  display.showNumberDecEx(pontosAzul*1000 + pontosVermelho); //Exibe a pontuação
- 
+   
   if(som){ //Caso algum participante aperte o botão
     Serial.println("Alarme ativado"); //Exibe mensagem na serial
 
@@ -101,7 +145,7 @@ void loop() {
 
     //Espera o tempo de resposta   
     for (int i=tempo/1000;i>=0;i--){
-      display.showNumberDecEx(i); //Exibe o tempo
+      
       delay(1000);
     }
 
