@@ -1,5 +1,5 @@
  /*
-  * Código para Passa ou Repassa com arduino
+  * Código para Passa ou Repassa Eletrônico
   * 
   * Autores:
   * Denilson Gomes Vaz da Silva   <denilsongomes@alu.ufc.br>
@@ -8,6 +8,7 @@
   * Graduando em Mecatrônica - IFCE
  */
 
+// -- Bibliotecas --
 #include <TimerOne.h>
 
 // -- Variaveis e Constantes --
@@ -52,12 +53,12 @@ void setup() {
   //Saídas
   pinMode(ledAzul, OUTPUT); //Led azul como saida
   pinMode(buzzer, OUTPUT); //Buzzer como saida
-  pinMode(ledVermelho, OUTPUT); //Led vermalho como saida
+  pinMode(ledVermelho, OUTPUT); //Led vermelho como saida
   pinMode(displayAzul, OUTPUT); //Sinal para ativar displayAzul
   pinMode(displayVermelho, OUTPUT); //Sinal para ativar displayVermelho
   
-  
   //Seguimentos dos Displays
+  //Caso os pinos dos seguimentos mudem é preciso rever a função
   pinMode(12, OUTPUT); //PINO 2 -> SEGMENTO A  
   pinMode(11, OUTPUT); //PINO 3 -> SEGMENTO B
   pinMode(10, OUTPUT); //PINO 4 -> SEGMENTO C
@@ -72,52 +73,59 @@ void setup() {
   pinMode(botAzul, INPUT_PULLUP); //Botão azul como entrada
   pinMode(botVermelho, INPUT_PULLUP); //Botão vermelho como entrada
   
-  // Sintaxe das interrupções:
-  // attachInterrupt(numero_interrupt,funcao_a_executar,modo);
-  // Modos LOW,CHANGE,RISING,FALLING
+  attachInterrupt(0, azul, FALLING); //Chama azul() quando botão azul é presionado
+  attachInterrupt(1, vermelho, FALLING); //Chama vermelho() quando botão vermelho é presionado
   
-  attachInterrupt(0, azul, FALLING); //Interupção quando botão azul é presionado
-  attachInterrupt(1, vermelho, FALLING); //Interupção quando botão vermelho é presionado
-  
-  Timer1.initialize(30000); // Inicializa o Timer1 e configura para um período de 10 milisegundos
+  Timer1.initialize(10000); // Inicializa o Timer1 e configura para um período de 10 milisegundos
   Timer1.attachInterrupt(callback); // Chama callback() a cada interrupção do Timer1
-  
+
+  // Configuração inicial
   estVermelho=0;
   estAzul=0;
   som =0;
+  pontosAzul =0;
+  pontosVermelho =0;
+
+  //Começa a multiplexação
+  digitalWrite(displayAzul,LOW); //Exibe display Azul
+  digitalWrite(displayVermelho,HIGH); //Exibe display vermelho
 }
 
+//Função chamada quando o botão vermelho é pressionado
 void vermelho() {
   noInterrupts(); //Desativa as interrupções
   estVermelho = 1;
   som = 1;
 }
 
+//Função chamada quando o botão azul é pressionado
 void azul() {
   noInterrupts(); //Desativa as interrupções
   estAzul = 1;
   som = 1;
 }
 
+//Função chamada a cada interrupção do Timer
 void callback()
 {
-  digitalWrite(displayAzul, !digitalRead(displayAzul));
-  digitalWrite(displayVermelho, !digitalRead(displayVermelho));            
-  if(digitalRead(displayAzul)){
-    ligaSegmentosDisplay(pontosAzul);
-  }else{
-    ligaSegmentosDisplay(pontosVermelho);
+  digitalWrite(displayAzul, !digitalRead(displayAzul)); //Troca o estado do display azul
+  digitalWrite(displayVermelho, !digitalRead(displayVermelho)); //Troca o estado do display vermelho
+  if(digitalRead(displayAzul)){ //caso formos ligar o display vermelho
+    ligaSegmentosDisplay(pontosVermelho); //Exibimos a pontuação da equipe vermelha
+  }else{ //caso formos ligar o display azul
+    ligaSegmentosDisplay(pontosAzul); //Exibimos a pontuação da equipe azul
   }
 }
 
-void ligaSegmentosDisplay(byte digit){ //FUNÇÃO QUE ACIONA O DISPLAY
-  byte pino = 2;
+//Função que exibe a pontuação no display
+void ligaSegmentosDisplay(byte digit){
+  byte pino = 12; //Pino do seguimento A
 
   for (byte contadorSegmentos = 0; contadorSegmentos < 7; ++contadorSegmentos){ //PARA "contadorSegmentos"
     //IGUAL A 0, ENQUANTO "contadorSegmentos" MENOR QUE 7, INCREMENTA "contadorSegmentos"
     digitalWrite(pino, seven_seg_digits[digit][contadorSegmentos]); //PERCORRE O ARRAY E LIGA OS
     //SEGMENTOS CORRESPONDENTES AO DIGITO
-    ++pino; //INCREMENTA "pino"
+    --pino; //INCREMENTA "pino"
   }
 }
 
@@ -128,12 +136,12 @@ void loop() {
 
     //Garantir que apenas uma equipe terá o direito de resposta
     if(estAzul && estVermelho){ //Pro caso de as duas interrupções executarem
-      int num = random(0,100);
-      if(num%2==0){
-        estVermelho = 0;
+      int num = random(0,100); //Gera num aleatorio entre 0 e 99
+      if(num%2==0){ //Caso num seja par
+        estVermelho = 0; //Equipe azul ganha o direito de resposta
         Serial.println("Led Azul será aceso");
-      }else{
-        estAzul = 0;
+      }else{ //Caso num seja impar
+        estAzul = 0; //Equipe vermelha ganha o direito de resposta
         Serial.println("Led Vermelho será aceso");
       }
     }
@@ -181,5 +189,4 @@ void loop() {
     
     interrupts(); //Torna a esperar por interrupções
   }
-  
 }
