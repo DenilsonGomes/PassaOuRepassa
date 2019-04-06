@@ -22,7 +22,7 @@ const int DIO = 7; //Define o pino 8 para o sinal digital
 const int CLK = 8; //Define o pino 9 para o clock
 
 int incrementVermelho = 9; //Botao para incrementar pontuação dos vermelhos
-int ledVermelho = 10;; //Variavel para led vermelho
+int ledVermelho = 10; //Variavel para led vermelho
 
 int pontosAzul = 0; //Variavel para pontuação da equipe Azul
 int pontosVermelho = 0; //Variavel para pontuação da equipe Vermelha
