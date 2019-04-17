@@ -16,9 +16,9 @@
 2.Materiais
 ==========
 
-<p>Para desenvolver esse sistema fizemos o uso de um Arduino Uno, cinco push buttons, dois leds e dois resistores, um buzzer e um display de quatro digitos.<p/>
+<p>Para desenvolver esse sistema fizemos o uso de um Arduino Uno, duas botoeiras, três push buttons, dois leds e dois resistores, uma sirene piezoeletrica bitonal e dois display de 7 segmentos.<p/>
 
 3.Funcionamento
 ==========
 
-<p>Este sistema deve esperar que algum participante aperte o botão, para então acionar o sinal sonoro e o sinal visual da equipe que pressionou o botão. Foi utilizado um led de cada cor para representar cada equipe. Então deve esperar o tempo que o participante tem para responder a pergunta e esperar ser apertado um botão para incrementar a pontuação de uma das equipes. O display deve ser utilizado para exibir a pontuação e/ou o tempo. Há também um botão para reiniciar o jogo.<p/>
+<p>Este sistema deve esperar que algum participante aperte o botão (tempo da pergunta) para então acionar o sinal sonoro e o sinal visual da equipe que pressionou o botão. Foi utilizado um led de cada cor para representar cada equipe. Então deve esperar o tempo que o participante tem para responder a pergunta, desativar o sinal sonoro e esperar ser apertado um botão para incrementar a pontuação de uma das equipes. Os displays exibem a pontuação de cada equipe. Há também um botão para zerar as pontuções.<p/>
