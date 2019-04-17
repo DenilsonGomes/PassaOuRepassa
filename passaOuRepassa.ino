@@ -149,7 +149,7 @@ void loop() {
     //Acende o led da equipe que vai responder e ativa o som
     digitalWrite(ledVermelho,estVermelho);
     digitalWrite(ledAzul,estAzul);
-    tone(buzzer,166);
+    digitalWrite(buzzer,HIGH);
 
     //Espera o tempo de resposta   
     for (int i=tempo/1000;i>=0;i--){
@@ -158,7 +158,7 @@ void loop() {
     }
 
     //Para o sinal sonoro
-    noTone(buzzer);
+    digitalWrite(buzzer,LOW);
     Serial.println("Tempo para resposta esgotado!!");
 
     //Pontuação
