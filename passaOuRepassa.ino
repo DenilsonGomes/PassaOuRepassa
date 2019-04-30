@@ -59,13 +59,13 @@ void setup() {
   
   //Seguimentos dos Displays
   //Caso os pinos dos seguimentos mudem é preciso rever a função
-  pinMode(12, OUTPUT); //PINO 2 -> SEGMENTO A  
-  pinMode(11, OUTPUT); //PINO 3 -> SEGMENTO B
-  pinMode(10, OUTPUT); //PINO 4 -> SEGMENTO C
-  pinMode(9, OUTPUT); //PINO 5 -> SEGMENTO D
-  pinMode(8, OUTPUT); //PINO 6 -> SEGMENTO E
+  pinMode(12, OUTPUT); //PINO 12 -> SEGMENTO A  
+  pinMode(11, OUTPUT); //PINO 11 -> SEGMENTO B
+  pinMode(10, OUTPUT); //PINO 10 -> SEGMENTO C
+  pinMode(9, OUTPUT); //PINO 9 -> SEGMENTO D
+  pinMode(8, OUTPUT); //PINO 8 -> SEGMENTO E
   pinMode(7, OUTPUT); //PINO 7 -> SEGMENTO F
-  pinMode(6, OUTPUT); //PINO 8 -> SEGMENTO G
+  pinMode(6, OUTPUT); //PINO 6 -> SEGMENTO G
   
   //Entradas
   pinMode(incrementAzul, INPUT_PULLUP); //Botão incrementa pontos azul como entrada
@@ -125,7 +125,7 @@ void ligaSegmentosDisplay(byte digit){
     //IGUAL A 0, ENQUANTO "contadorSegmentos" MENOR QUE 7, INCREMENTA "contadorSegmentos"
     digitalWrite(pino, seven_seg_digits[digit][contadorSegmentos]); //PERCORRE O ARRAY E LIGA OS
     //SEGMENTOS CORRESPONDENTES AO DIGITO
-    --pino; //INCREMENTA "pino"
+    --pino; //DECREMENTA "pino"
   }
 }
 
