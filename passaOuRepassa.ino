@@ -1,4 +1,4 @@
- /*
+/*
   * Código para Passa ou Repassa Eletrônico
   * 
   * Autores:
@@ -14,12 +14,12 @@
 // -- Variaveis e Constantes --
 int botAzul = 2; //Botao da equipe Azul
 int botVermelho = 3; //Botao da equipe Vermelho
-int ledAzul = A0; //Variavel para led azul
-int incrementAzul = A1; //Variavel para incrementar pontuação azul
-int buzzer = A2; //Variavel para sinal sonoro
+int ledAzul = A1; //Variavel para led azul
+int incrementAzul = A3; //Variavel para incrementar pontuação azul
+int buzzer = A4; //Variavel para sinal sonoro
 
-int incrementVermelho = A4; //Botao para incrementar pontuação dos vermelhos
-int ledVermelho = A3; //Variavel para led vermelho
+int incrementVermelho = A2; //Botao para incrementar pontuação dos vermelhos
+int ledVermelho = A0; //Variavel para led vermelho
 
 volatile byte pontosAzul = 0; //Variavel para pontuação da equipe Azul
 volatile byte pontosVermelho = 0; //Variavel para pontuação da equipe Vermelha
@@ -175,9 +175,11 @@ void loop() {
     if(a){ //Caso foi o botao azul
       Serial.println("Equipe azul pontuou!");
       pontosAzul++; //incrementa pontuação azul
+      pontosAzul = pontosAzul%10; //Mantém pontosAzul entre 0 e 9
     }else{ //Caso foi o botao vermelho
       Serial.println("Equipe Vermelha pontuou!");
       pontosVermelho++; //incrementa pontuação vermelha
+      pontosVermelho = pontosVermelho%10; //Mantém pontosVermelho entre 0 e 9
     }
 
     //reseta estado das saidas para nova pergunta
