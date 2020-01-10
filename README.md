@@ -8,7 +8,7 @@
 <h2 align="right">Cassio Viera Simplicio<br>
 <br>
 
-1. Introdução
+1.Introdução
 ==========
 
 <p>Este projeto consiste na criação de um sistema de Passa ou Repassa, jogo de perguntas e resposta onde competem duas equipes. É feito uma pergunta e então os participantes devem apertar um botão para ganhar o direito de responder a pergunta, caso acerte a resposta ganha um ponto, do contrário a outra equipe pontua.<p/>
