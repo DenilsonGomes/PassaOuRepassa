@@ -23,7 +23,8 @@ int ledVermelho = A0; //Variavel para led vermelho
 
 volatile byte pontosAzul = 0; //Variavel para pontuação da equipe Azul
 volatile byte pontosVermelho = 0; //Variavel para pontuação da equipe Vermelha
-int tempo = 5000; //Tempo que o participante tem para responder a pergunta após apertar o botão
+volatile byte muxDisplay = 1; // Variavel usada para multiplexar os displays
+int tempo = 2500; //Tempo que o participante tem para responder a pergunta após apertar o botão
 
 volatile int som; //Variavel para controlar o sinal sonoro
 volatile int estVermelho; //Variavel para controlar o sinal visual da equipe Vermelha
@@ -108,13 +109,24 @@ void azul() {
 //Função chamada a cada interrupção do Timer
 void callback()
 {
-  digitalWrite(displayAzul, !digitalRead(displayAzul)); //Troca o estado do display azul
-  digitalWrite(displayVermelho, !digitalRead(displayVermelho)); //Troca o estado do display vermelho
-  if(digitalRead(displayAzul)){ //caso formos ligar o display vermelho
+  /*
+   * 1. Parar de exibir a informação(pontuação);
+   * 2. Trocar a informação(Azul<=>Vermelho);
+   * 3. Voltar a exibir a informação(pontuação).
+   */
+  muxDisplay+=1; //Incrementa mux
+  muxDisplay%=2; //mux = mux%2(0 ou 1)
+  digitalWrite(displayAzul, LOW); //Para de exibir pontuação azul
+  digitalWrite(displayVermelho, LOW); //Para de exibir pontuação vermelho
+  delay(2); //Delay de 2 milisegundos
+  if(muxDisplay%2 == 0){
+    ligaSegmentosDisplay(pontosAzul); //Exibimos a pontuação da equipe vermelha
+  }else{
     ligaSegmentosDisplay(pontosVermelho); //Exibimos a pontuação da equipe vermelha
-  }else{ //caso formos ligar o display azul
-    ligaSegmentosDisplay(pontosAzul); //Exibimos a pontuação da equipe azul
   }
+  delay(2); //Delay de 2 milisegundos
+  digitalWrite(displayAzul, muxDisplay); //Troca o estado do display azul
+  digitalWrite(displayVermelho, !muxDisplay); //Troca o estado do display vermelho
 }
 
 //Função que exibe a pontuação no display
@@ -152,10 +164,7 @@ void loop() {
     digitalWrite(buzzer,HIGH);
 
     //Espera o tempo de resposta   
-    for (int i=tempo/1000;i>=0;i--){
-      
-      delay(1000);
-    }
+    delay(tempo); // Espera tempo milisegundos
 
     //Para o sinal sonoro
     digitalWrite(buzzer,LOW);
